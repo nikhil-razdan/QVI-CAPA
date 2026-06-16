@@ -8,7 +8,6 @@ function LoginPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (username && password) {
       localStorage.setItem("token", "demo-token");
       navigate("/dashboard", { replace: true });
@@ -16,9 +15,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="qms-gradient-bg" style={{ display: "flex", position: "relative" }}>
-      <div style={backgroundText}>QVI</div>
-
+    <div className="qms-gradient-bg flex relative min-h-screen">
       <div style={leftPanel}>
         <div style={contentBlock}>
           <span style={{ ...badge, fontWeight: "bold" }}>QMS Management Portal</span>
@@ -36,7 +33,6 @@ function LoginPage() {
           </p>
         </div>
       </div>
-
       <div style={rightPanel}>
         <div style={glassCard}>
           <div style={cardHighlight} />
@@ -66,9 +62,8 @@ function LoginPage() {
   );
 }
 
-// Existing hardcoded styles, moduralize if any need to use it elsewhere too.
-const backgroundText = { position: "absolute" as const, fontSize: 220, fontWeight: 900, color: "rgba(255,255,255,0.12)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-const leftPanel = { flex: 1, padding: "60px 80px", color: "#fff", display: "flex", alignItems: "center" };
+// Keeping the hard coded color rules
+const leftPanel = { flex: 1, padding: "60px 80px", color: "#fff", display: "flex", alignItems: "center", zIndex: 1 };
 const contentBlock = { maxWidth: 520, fontWeight: "bold" as const };
 const badge = { padding: "6px 14px", borderRadius: 20, background: "rgba(255,255,255,0.2)" };
 const title = { fontSize: 42, fontWeight: 800 };
@@ -77,7 +72,7 @@ const subtitle = { fontSize: 22 };
 const description = { lineHeight: 1.6 };
 const descriptionMuted = { opacity: 0.85 };
 const divider = { height: 1, width: 120, background: "#fff", margin: "20px 0" };
-const rightPanel = { flex: 1, display: "flex", justifyContent: "center", alignItems: "center" };
+const rightPanel = { flex: 1, display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1 };
 const glassCard = { position: "relative" as const, width: "100%", maxWidth: 420, padding: 40, borderRadius: 28, background: "rgba(255,255,255,0.2)", boxSizing: "border-box" as const };
 const cardTitle = { color: "#fff" };
 const cardSubtitle = { color: "#eee" };
