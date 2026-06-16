@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* To get same bg on all */
+@utility qms-gradient-bg {
+  background: linear-gradient(135deg, #f5c542 0%, #b8860b 100%);
+  min-height: 100vh;
+  width: 100%;
+}
