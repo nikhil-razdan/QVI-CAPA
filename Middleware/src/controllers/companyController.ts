@@ -24,7 +24,7 @@ export async function createCompany(req: Request, res: Response, next: NextFunct
 
 export async function getCompanies(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const [rows] = await pool.execute("SELECT C_ID, Company_Name FROM Company ORDER BY Company_Name ASC");
+    const [rows] = await pool.execute("SELECT C_ID, Company_Name FROM Company ORDER BY C_ID ASC");
     res.status(200).json(rows);
   } catch (err) {
     next(err);

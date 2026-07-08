@@ -2,7 +2,6 @@ import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import auditRouter from './routes/auditRoutes.js';
-import sessionRouter from './routes/sessionRoutes.js';
 import companyRouter from './routes/companyRoutes.js';
 import auditorRouter from './routes/auditorRoutes.js';
 
@@ -13,7 +12,6 @@ app.use(express.json());
 
 app.use('/api/auditors', auditorRouter);
 app.use('/api/audits', auditRouter);
-app.use('/api/sessions', sessionRouter);
 app.use('/api/companies', companyRouter);
 
 app.get('/health', (_req: Request, res: Response) => {

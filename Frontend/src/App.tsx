@@ -3,12 +3,14 @@ import LoginPage from "./pages/LoginPage.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import FormsManagement from "./pages/FormsManagement.tsx";
 import FormContainer from "./components/FormContainer.tsx";
-import AuditPage1 from "./pages/AuditPage1.tsx";
+import AuditStart from "./pages/AuditStart.tsx";
 import AuditManagement from "./pages/AuditManagement.tsx";
 import FormMaster from "./pages/FormMaster.tsx";
 import LevelPicker from "./pages/LevelPicker.tsx";
 import CompanyMaster from "./pages/CompanyMaster.tsx";
 import AuditorMaster from "./pages/AuditorMaster.tsx";
+import AuditEmbed from "./pages/AuditEmbed.tsx";
+
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
   const token = localStorage.getItem("token");
   if (!token) return <Navigate to="/login" replace />;
@@ -33,7 +35,8 @@ const App = () => {
         <Route path="/audit-management" element={<P><AuditManagement /></P>} />
         <Route path="/audit-management/form-master" element={<P><FormMaster /></P>} />
         <Route path="/audit-management/form-master/:formId/level" element={<P><LevelPicker /></P>} />
-        <Route path="/audit-management/form-master/1/level/1" element={<P><AuditPage1 /></P>} />
+        <Route path="/audit-management/form-master/:formId/level/:level" element={<P><AuditStart /></P>} />
+        <Route path="/audit-management/form-master/:formId/level/:level/embed" element={<P><AuditEmbed /></P>} />
         <Route path="/audit-management/company-master" element={<P><CompanyMaster /></P>} />
         <Route path="/audit-management/auditor-master" element={<P><AuditorMaster /></P>} />
 
