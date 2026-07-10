@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 interface Auditor {
   A_ID: string;
   Auditor_Name: string;
-  Certification: string;
+  Auditor_Email?: string | null;
+  Auditor_Contact?: string | null;
+  Certification: string | null;
 }
 
 const inputCls = "border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full";
@@ -18,19 +20,71 @@ const Field = ({ label, required, children }: { label: string; required?: boolea
   </div>
 );
 
+const DetailRow = ({ label, value, isLink }: { label: string; value?: string | null; isLink?: boolean }) => (
+  <div className="flex flex-col gap-0.5 py-2 border-b last:border-0">
+    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
+    {value
+      ? isLink
+        ? <a href={value} target="_blank" rel="noreferrer" className="text-sm text-blue-500 hover:underline break-all">{value}</a>
+        : <span className="text-sm text-gray-800">{value}</span>
+      : <span className="text-sm italic text-gray-400">-</span>
+    }
+  </div>
+);
+
+const AuditorDetailModal = ({ auditor, onClose }: { auditor: Auditor; onClose: () => void }) => (
+  <div
+    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    onClick={onClose}
+  >
+    <div
+      className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-lg font-bold text-gray-800">{auditor.Auditor_Name}</h3>
+        <button
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-700 text-xl leading-none"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+      </div>
+      <div className="flex flex-col">
+        <DetailRow label="Auditor ID" value={auditor.A_ID} />
+        <DetailRow label="Email" value={auditor.Auditor_Email} />
+        <DetailRow label="Contact Number" value={auditor.Auditor_Contact} />
+        <DetailRow label="Certification" value={auditor.Certification} isLink />
+      </div>
+      <button
+        onClick={onClose}
+        className="mt-4 bg-gray-900 hover:bg-black text-white px-4 py-2 rounded-full text-sm transition w-full"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+);
+
 const AuditorMaster = () => {
   const navigate = useNavigate();
   const [auditors, setAuditors] = useState<Auditor[]>([]);
   const [aId, setAId] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
   const [cert, setCert] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [selectedAuditor, setSelectedAuditor] = useState<Auditor | null>(null);
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editContact, setEditContact] = useState("");
   const [editCert, setEditCert] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
@@ -59,7 +113,13 @@ const AuditorMaster = () => {
       const res = await fetch("http://localhost:5000/api/auditors/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ A_ID: aId.trim(), Auditor_Name: name.trim(), Certification: cert.trim() || null }),
+        body: JSON.stringify({
+          A_ID: aId.trim(),
+          Auditor_Name: name.trim(),
+          Auditor_Email: email.trim() || null,
+          Auditor_Contact: contact.trim() || null,
+          Certification: cert.trim() || null,
+        }),
       });
       const text = await res.text();
       let data: { error?: string };
@@ -67,7 +127,7 @@ const AuditorMaster = () => {
       catch { throw new Error(`Non-JSON: ${text.slice(0, 100)}`); }
       if (!res.ok) throw new Error(data.error ?? "Failed");
       setSuccess("Auditor added successfully");
-      setAId(""); setName(""); setCert("");
+      setAId(""); setName(""); setEmail(""); setContact(""); setCert("");
       void fetchAuditors();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
@@ -92,13 +152,15 @@ const AuditorMaster = () => {
   const startEdit = (a: Auditor) => {
     setEditingId(a.A_ID);
     setEditName(a.Auditor_Name);
+    setEditEmail(a.Auditor_Email ?? "");
+    setEditContact(a.Auditor_Contact ?? "");
     setEditCert(a.Certification ?? "");
     setEditError("");
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditName(""); setEditCert(""); setEditError("");
+    setEditName(""); setEditEmail(""); setEditContact(""); setEditCert(""); setEditError("");
   };
 
   const handleUpdate = async (id: string) => {
@@ -109,7 +171,12 @@ const AuditorMaster = () => {
       const res = await fetch(`http://localhost:5000/api/auditors/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Auditor_Name: editName.trim(), Certification: editCert.trim() || null }),
+        body: JSON.stringify({
+          Auditor_Name: editName.trim(),
+          Auditor_Email: editEmail.trim() || null,
+          Auditor_Contact: editContact.trim() || null,
+          Certification: editCert.trim() || null,
+        }),
       });
       const text = await res.text();
       let data: { error?: string };
@@ -152,6 +219,12 @@ const AuditorMaster = () => {
             <Field label="Certification Link">
               <input className={inputCls} value={cert} onChange={e => setCert(e.target.value)} placeholder="https://..." />
             </Field>
+            <Field label="Auditor Email">
+              <input className={inputCls} value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. auditor@mail.com" />
+            </Field>
+            <Field label="Auditor Contact Number">
+              <input className={inputCls} value={contact} onChange={e => setContact(e.target.value)} placeholder="e.g. 9800000000" />
+            </Field>
           </div>
           {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
           {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
@@ -164,7 +237,7 @@ const AuditorMaster = () => {
           </button>
         </div>
 
-        {/* Table */}
+        {/* Table - unchanged columns, rows now clickable (except while editing) */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h2 className="text-lg font-bold text-gray-800 mb-4">Auditor List</h2>
           {auditors.length === 0 ? (
@@ -181,15 +254,35 @@ const AuditorMaster = () => {
                 </thead>
                 <tbody>
                   {auditors.map(a => (
-                    <tr key={a.A_ID} className="border-b last:border-0 hover:bg-gray-50">
+                    <tr
+                      key={a.A_ID}
+                      className={`border-b last:border-0 hover:bg-gray-50 ${editingId === a.A_ID ? "" : "cursor-pointer"}`}
+                      onClick={() => { if (editingId !== a.A_ID) setSelectedAuditor(a); }}
+                    >
                       {editingId === a.A_ID ? (
                         <>
                           <td className="py-2 px-3 text-gray-500 text-xs">{a.A_ID}</td>
                           <td className="py-2 px-3">
                             <input
-                              className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-400 mb-1"
                               value={editName}
                               onChange={e => setEditName(e.target.value)}
+                              placeholder="Name"
+                              onClick={e => e.stopPropagation()}
+                            />
+                            <input
+                              className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-400 mb-1"
+                              value={editEmail}
+                              onChange={e => setEditEmail(e.target.value)}
+                              placeholder="Email"
+                              onClick={e => e.stopPropagation()}
+                            />
+                            <input
+                              className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              value={editContact}
+                              onChange={e => setEditContact(e.target.value)}
+                              placeholder="Contact"
+                              onClick={e => e.stopPropagation()}
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -197,20 +290,21 @@ const AuditorMaster = () => {
                               className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-400"
                               value={editCert}
                               onChange={e => setEditCert(e.target.value)}
+                              onClick={e => e.stopPropagation()}
                             />
                             {editError && <p className="text-red-500 text-xs mt-1">{editError}</p>}
                           </td>
                           <td className="py-2 px-3">
                             <div className="flex gap-2">
                               <button
-                                onClick={() => void handleUpdate(a.A_ID)}
+                                onClick={e => { e.stopPropagation(); void handleUpdate(a.A_ID); }}
                                 disabled={editLoading}
                                 className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-xs transition disabled:opacity-50"
                               >
                                 {editLoading ? "Saving..." : "Save"}
                               </button>
                               <button
-                                onClick={cancelEdit}
+                                onClick={e => { e.stopPropagation(); cancelEdit(); }}
                                 className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded-full text-xs transition"
                               >
                                 Cancel
@@ -224,20 +318,20 @@ const AuditorMaster = () => {
                             <td className="py-2 px-3 text-gray-700">{a.Auditor_Name}</td>
                             <td className="py-2 px-3 text-gray-500 text-xs">
                               {a.Certification
-                                ? <a href={a.Certification} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{a.Certification}</a>
-                                : <span className="italic">—</span>
+                                ? <a href={a.Certification} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 hover:underline">{a.Certification}</a>
+                                : <span className="italic">-</span>
                               }
                             </td>
                             <td className="py-2 px-3">
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() => startEdit(a)}
+                                  onClick={e => { e.stopPropagation(); startEdit(a); }}
                                   className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs transition"
                                 >
                                   Edit
                                 </button>
                                 <button
-                                  onClick={() => void handleDelete(a.A_ID)}
+                                  onClick={e => { e.stopPropagation(); void handleDelete(a.A_ID); }}
                                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs transition"
                                 >
                                   Delete
@@ -253,6 +347,10 @@ const AuditorMaster = () => {
             )}
         </div>
       </div>
+
+      {selectedAuditor && (
+        <AuditorDetailModal auditor={selectedAuditor} onClose={() => setSelectedAuditor(null)} />
+      )}
     </div>
   );
 };
