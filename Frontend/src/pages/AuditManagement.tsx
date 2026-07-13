@@ -4,6 +4,7 @@ const options = [
   { title: "Form Master", subtitle: "Access and fill audit forms", path: "/audit-management/form-master" },
   { title: "Company Master", subtitle: "Add and manage companies", path: "/audit-management/company-master" },
   { title: "Auditor Master", subtitle: "Add and manage auditors", path: "/audit-management/auditor-master" },
+  { title: "Create Audit", subtitle: "Schedule and route new audits", path: "/audit-management/create-audit" },
 ];
 
 const AuditManagement = () => {

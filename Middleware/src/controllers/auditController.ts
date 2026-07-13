@@ -73,8 +73,37 @@ export async function ingestAuditSubmission(req: Request, res: Response, next: N
 
     // TODO:Config acc to payload choice, no base64 buffer for files.
 
-    res.status(200).json({ message: 'Ingested (raw only — field mapping not yet implemented)' });
+    res.status(200).json({ message: 'Ingested (raw only - field mapping not yet implemented)' });
   } catch (err) {
+    next(err);
+  }
+}
+
+export async function scheduleAudit(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { c_id, company_name, auditor_id, auditor_name, date_of_audit } = req.body as Record<string, string>;
+
+    if (!c_id || !company_name || !auditor_id || !auditor_name || !date_of_audit) {
+      res.status(400).json({ error: 'Missing required scheduling fields' });
+      return;
+    }
+
+    const query = `
+      INSERT INTO Audit_Session (C_ID, Company_Name, Auditor_ID, Auditor_Name, Date_Of_Audit, Status)
+      VALUES (?, ?, ?, ?, ?, 'Scheduled')
+    `;
+
+    const [result]: any = await pool.execute(query, [c_id, company_name, auditor_id, auditor_name, date_of_audit]);
+
+    res.status(201).json({
+      message: 'Audit scheduled successfully',
+      sessionId: result.insertId,
+    });
+  } catch (err: any) {
+    if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
+      res.status(400).json({ error: 'Invalid company or auditor reference' });
+      return;
+    }
     next(err);
   }
 }
