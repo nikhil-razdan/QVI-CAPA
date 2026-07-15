@@ -52,7 +52,14 @@ const AuditStart = () => {
       const res = await fetch('http://localhost:5000/api/audits/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ C_ID, Form_ID: formId, Level: level, Status: 'Planned' }),
+        body: JSON.stringify({
+          C_ID,
+          Form_ID: formId,
+          Level: level,
+          Auditor_ID: A_ID,
+          Auditor_Name: auditorName,
+          Status: 'Planned',
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Request failed');

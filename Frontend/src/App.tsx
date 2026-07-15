@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage.tsx";
+import AdminCalendar from "./pages/AdminCalendar.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import FormsManagement from "./pages/FormsManagement.tsx";
 import FormContainer from "./components/FormContainer.tsx";
@@ -11,6 +12,7 @@ import CompanyMaster from "./pages/CompanyMaster.tsx";
 import AuditorMaster from "./pages/AuditorMaster.tsx";
 import AuditEmbed from "./pages/AuditEmbed.tsx";
 import CreateAudit from "./pages/CreateAudit.tsx";
+import AuditVerifyGateway from "./pages/AuditVerifyGateway.tsx"; // Import gateway
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
   const token = localStorage.getItem("token");
@@ -41,6 +43,10 @@ const App = () => {
         <Route path="/audit-management/company-master" element={<P><CompanyMaster /></P>} />
         <Route path="/audit-management/auditor-master" element={<P><AuditorMaster /></P>} />
         <Route path="/audit-management/create-audit" element={<P><CreateAudit /></P>} />
+        <Route path="/audit-management/calendar" element={<P><AdminCalendar /></P>} />
+
+        {/* PUBLIC SECURE GATEWAY FOR AUDITORS MORNING VERIFICATION NODE */}
+        <Route path="/audit-verification/gateway" element={<AuditVerifyGateway />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

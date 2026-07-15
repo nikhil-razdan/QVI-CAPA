@@ -1,11 +1,18 @@
 import { Router } from 'express';
-import { createAudit, getAudits, ingestAuditSubmission, scheduleAudit } from '../controllers/auditController.js';
+import {
+  scheduleAuditSession,
+  createManualAuditSession,
+  processLoopHandshake,
+  verifyGateCheckpoint,
+  getCalendarFeed,
+} from '../controllers/auditController.js';
 
 const router = Router();
 
-router.post('/create', createAudit);
-router.get('/', getAudits);
-router.post('/ingest', ingestAuditSubmission);
-router.post('/schedule', scheduleAudit);
+router.post('/schedule', scheduleAuditSession);
+router.post('/create', createManualAuditSession);
+router.get('/loop-handshake', processLoopHandshake);
+router.get('/verify-checkpoint', verifyGateCheckpoint);
+router.get('/calendar', getCalendarFeed);
 
 export default router;
